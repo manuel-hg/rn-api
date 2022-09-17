@@ -16,18 +16,24 @@ export default function App() {
   });
   const { texto, data, isLoading } = initialState;
 
-  const handleSetText = (e) => {
-    setInitialState({ ...initialState, texto: e })
+  const handleSetPokeByName = async(e) => {
+      try{
+        const request = await fetch('https://pokeapi.co/api/v2/pokemon');
+        const response = await request.json();
+        const mapeo = response.results.map((a,b,c) => (a) && ({...a, id:b+1}));
+        const busqueda = mapeo.filter(mapeo => mapeo.name === e);
+        setInitialState({ ...initialState, data:busqueda, texto: e })
+      } catch (error) {
+        console.log(error)
+      }
   }
 
   const getInfo = async () => {
-    console.log("entra a fun")
     try {
-      console.log("entra a try")
       const request = await fetch('https://pokeapi.co/api/v2/pokemon');
       const response = await request.json();
       const mapeo = response.results.map((a,b,c) => (a) && ({...a, id:b+1}));
-      setInitialState({ ...initialState, data: mapeo, isLoading: false })
+      setInitialState({ ...initialState, data: mapeo, texto: '', isLoading: false })
       
     } catch (error) {
       console.log(error)
@@ -56,8 +62,8 @@ const Item = ({name, id}) =>{
             round
             searchIcon={{ size: 24 }}
             placeholder="Buscar..."
-            onChangeText={(e) => handleSetText(e)}
-            onClear={() => setInitialState({ ...initialState, texto: '' })}
+            onChangeText={(e) => handleSetPokeByName(e)}
+            onClear={() => getInfo()}
             value={texto}
           />
         </View>
